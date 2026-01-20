@@ -275,6 +275,12 @@ void DetectShock_CR (const Data *d, Grid *grid)
        gradrho_gradtmp = D_EXPAND(drhox1*dtmpx1/(dx1[i]*dx1[i]),\
                                 + drhox2*dtmpx2/(r[i]*r[i])/(dx2[j]*dx2[j]),\
                                 + drhox3*dtmpx3/(r[i]*r[i]*sin(th[j])*sin(th[j]))/(dx3[k]*dx3[k]));
+
+       #elif GEOMETRY == CYLINDRICAL   // NEW - Arpan
+       gradrho_gradtmp = D_EXPAND( drhox1*dtmpx1/(dx1[i]*dx1[i]) , \
+                                 + drhox2*dtmpx2/(dx2[j]*dx2[j]) , \
+                                 + 0    // There is no 3rd dimension supported for cylindrical in this version of PLUTO 
+                                 );
        #endif
 
        d->UDA[2][k][j][i] = GetMachNumber(k, j, i, d);

@@ -346,6 +346,13 @@ void RightHandSide (const State_1D *state, Time_Step *Dts,
       IF_ENERGY(rhs[i][ENG] = -dtdV*(fA[i][ENG] - fA[i-1][ENG]);)
       NSCL_LOOP(nv)  rhs[i][nv] = -dtdV*(fA[i][nv] - fA[i-1][nv]);
       
+       #if CR_FLUID != NO // NEW - Arpan
+       rhs[i][ECR]  = -dtdV*(fA[i][ECR] - fA[i-1][ECR]); 
+       if (CR_FLUID == NC_PdV_TOTENG){
+         rhs[i][ECR] -= CR_Source(i, state, vp, vm, dtdx, dtdV, A);
+       }
+      #endif
+      
     /* -- I5. Add dissipative terms to entropy equation -- */
 
       #if (ENTROPY_SWITCH) && (PARABOLIC_FLUX & EXPLICIT)
@@ -374,8 +381,11 @@ void RightHandSide (const State_1D *state, Time_Step *Dts,
      
   } else if (g_dir == JDIR) { 
 
+    GetAreaFlux (state, fA, fvA, beg, end, grid); // NEW - Arpan
+
     for (j = beg; j <= end; j++){ 
       dtdx = dt/dx2[j];
+      dtdV = dt/dV2[j]; // NEW - Arpan
 
     /* -- J1. initialize rhs with flux difference -- */
 
@@ -384,6 +394,12 @@ void RightHandSide (const State_1D *state, Time_Step *Dts,
        rhs[j][iMZ] += - dtdx*(p[j] - p[j-1]);
       #endif
 
+      #if CR_FLUID != NO // NEW - Arpan
+       rhs[j][ECR]   = -dtdV*(fA[j][ECR] - fA[j-1][ECR]);
+       if (CR_FLUID == NC_PdV_TOTENG){
+         rhs[j][ECR] -= CR_Source(j, state, vp, vm, dtdx, dtdV, A);
+       }
+      #endif
     /* -- J5. Add dissipative terms to entropy equation -- */
 
       #if (ENTROPY_SWITCH) && (PARABOLIC_FLUX & EXPLICIT)

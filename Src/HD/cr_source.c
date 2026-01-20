@@ -41,7 +41,7 @@ double CR_Source(int swp, const State_1D *state, double **vp,\
    #if GEOMETRY == CARTESIAN
      CR_HD_Source = (vr-vl) * dtdx *  Pcr;
    #else 
-     CR_HD_Source = (A[swp]*vr-A[swp-1]*vl)* dtdV * Pcr ;
+     CR_HD_Source = (A[swp]*vr-A[swp-1]*vl)* dtdV * Pcr ;  // this should work for cylindrical geometry
    #endif
    
 #endif

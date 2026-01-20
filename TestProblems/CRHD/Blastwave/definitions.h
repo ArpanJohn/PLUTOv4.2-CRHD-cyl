@@ -1,14 +1,15 @@
 #define  PHYSICS                 HD
-#define  DIMENSIONS              1
-#define  COMPONENTS              1
-#define  GEOMETRY                SPHERICAL
+#define  DIMENSIONS              2
+#define  COMPONENTS              3
+#define  GEOMETRY                CYLINDRICAL
 #define  BODY_FORCE              NO
 #define  COOLING                 NO
 #define  RECONSTRUCTION          LINEAR
 #define  TIME_STEPPING           RK2
 #define  DIMENSIONAL_SPLITTING   YES
 #define  NTRACER                 0
-#define  USER_DEF_PARAMETERS     7
+#define  USER_DEF_PARAMETERS     8
+
 
 /* -- physics dependent declarations -- */
 
@@ -29,11 +30,12 @@
 #define  mu_AMB                  4
 #define  Pcr_Shock               5
 #define  OPT                     6
+#define  Rinj                    7
 
 /* [Beg] user-defined constants (do not change this line) */
 
 #define  UNIT_LENGTH             CONST_pc
-#define  UNIT_VELOCITY           1.e5
+#define  UNIT_VELOCITY           (1e5)
 #define  UNIT_DENSITY            CONST_mH
 #define  unitPRS                 (UNIT_DENSITY*pow(UNIT_VELOCITY,2.0))
 #define  unitMASS                (UNIT_DENSITY*pow(UNIT_LENGTH,3.0))

@@ -6,6 +6,7 @@
 
 # CC       = mpicc
 CC	= mpicc.mpich
+# 	= mpicc.openmpi
 CFLAGS   = -c -O3 
 LDFLAGS  = -lm
 
@@ -18,6 +19,7 @@ USE_PNG  = FALSE
 #######################################
 
 ifeq ($(strip $(PARALLEL)), TRUE)
+ $(PARALLEL is set TRUE)
 endif
 
 #######################################

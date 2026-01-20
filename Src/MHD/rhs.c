@@ -346,11 +346,11 @@ void RightHandSide (const State_1D *state, Time_Step *Dts,
       IF_ENERGY(rhs[i][ENG] = -dtdV*(fA[i][ENG] - fA[i-1][ENG]);)
       NSCL_LOOP(nv)  rhs[i][nv] = -dtdV*(fA[i][nv] - fA[i-1][nv]);
       
-       #if CR_FLUID != NO // NEW - Arpan
+      #if CR_FLUID != NO // NEW - Arpan
        rhs[i][ECR]  = -dtdV*(fA[i][ECR] - fA[i-1][ECR]); 
        if (CR_FLUID == NC_PdV_TOTENG){
          rhs[i][ECR] -= CR_Source(i, state, vp, vm, dtdx, dtdV, A);
-       }
+      }
       #endif
       
     /* -- I5. Add dissipative terms to entropy equation -- */
@@ -395,7 +395,7 @@ void RightHandSide (const State_1D *state, Time_Step *Dts,
       #endif
 
       #if CR_FLUID != NO // NEW - Arpan
-       rhs[j][ECR]   = -dtdV*(fA[j][ECR] - fA[j-1][ECR]);
+      //  rhs[j][ECR]   = -dtdV*(fA[j][ECR] - fA[j-1][ECR]);
        if (CR_FLUID == NC_PdV_TOTENG){
          rhs[j][ECR] -= CR_Source(j, state, vp, vm, dtdx, dtdV, A);
        }

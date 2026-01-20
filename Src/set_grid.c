@@ -164,7 +164,7 @@ void SetGrid (Runtime *rtime, Grid *GXYZ)
     
       fprintf (fg, "%d \n", iR - iL + 1);
       for (i = iL; i <= iR; i++) {
-       fprintf (fg, " %d   %18.12e    %18.12e\n", 
+       fprintf (fg, " %d   %4.4e    %4.4e\n", 
           i-ngh+1, G->xl_glob[i], G->xr_glob[i]);
       }
     }
@@ -181,7 +181,7 @@ void SetGrid (Runtime *rtime, Grid *GXYZ)
    ---------------------------------------- */
 
   for (idim = 0; idim < DIMENSIONS; idim++){
-   print1 ("  X%d: [% f, % f], %d point(s), %d ghosts\n", idim+1,
+   print1 ("  X%d: [% 2.4f, % 2.4f], %d point(s), %d ghosts\n", idim+1,
             g_domBeg[idim], g_domEnd[idim], 
             GXYZ[idim].np_int_glob, GXYZ[idim].nghost);
   }

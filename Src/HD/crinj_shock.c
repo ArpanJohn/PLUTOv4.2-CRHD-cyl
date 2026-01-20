@@ -369,14 +369,14 @@ double GetMachNumber(int k, int j, int i, const Data *d)
  
   a2 = g_gamma*prs[k][j][i]/rho[k][j][i]; // Reference cell
  
-  EXPAND( a2_ip1 = g_gamma*prs[k][j][i+1]/rho[k][j][i+1]; 
+  D_EXPAND( a2_ip1 = g_gamma*prs[k][j][i+1]/rho[k][j][i+1]; 
           a2_im1 = g_gamma*prs[k][j][i-1]/rho[k][j][i-1];,
           a2_jp1 = g_gamma*prs[k][j+1][i]/rho[k][j+1][i];
           a2_jm1 = g_gamma*prs[k][j-1][i]/rho[k][j-1][i];,
           a2_kp1 = g_gamma*prs[k+1][j][i]/rho[k+1][j][i]; 
           a2_km1 = g_gamma*prs[k-1][j][i]/rho[k-1][j][i];  )
  
-  EXPAND( a2 = MIN(a2, a2_ip1); a2 = MIN(a2, a2_im1); ,
+  D_EXPAND( a2 = MIN(a2, a2_ip1); a2 = MIN(a2, a2_im1); ,
           a2 = MIN(a2, a2_jp1); a2 = MIN(a2, a2_jm1); ,
           a2 = MIN(a2, a2_kp1); a2 = MIN(a2, a2_km1); )
          

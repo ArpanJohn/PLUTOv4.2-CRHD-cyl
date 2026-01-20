@@ -16,20 +16,17 @@
 /* ********************************************************************* */
 void Init (double *v, double x1, double x2, double x3)
 /*! 
- * Reference : Chevalier, R. A. 1983, ApJ, 272,765
  *
  *********************************************************************** */
-{ 
+{
   double dr, vol, r;
-
-   dr = g_domBeg[IDIR] + 1.0*(g_domEnd[IDIR]-g_domBeg[IDIR])/(double)NX1;
-
-  double rinj = dr;//0.01;//2.*dr;
-
+  double rinj = g_inputParam[Rinj]; // im cgs units;
   vol = 4.0/3.0*CONST_PI*rinj*rinj*rinj;
 
 #if GEOMETRY == CARTESIAN
   r = sqrt(x1*x1 + x2*x2 + x3*x3);
+#elif GEOMETRY == CYLINDRICAL
+  r = sqrt(x1*x1 + x2*x2);
 #elif GEOMETRY  == SPHERICAL
   r = x1; // Spherical geometry
 #endif
@@ -39,12 +36,15 @@ void Init (double *v, double x1, double x2, double x3)
   v[PRS] = (g_inputParam[RHO_AMB]/CONST_mH/0.6)*CONST_kB*g_inputParam[TEMP_AMB]/unitPRS;
   
   #if CR_FLUID != NO
-  v[PCR] =v[PRS]; // or any small value (e.g, 1.e-10);
+  double fcr = 0.1;
+  v[PCR] = fcr*v[PRS]; // or any small value (e.g, 1.e-30);
   #endif
-//printf("%e", rinj); exit(1);
-  if (r <= rinj ) {
-   v[PRS] += (g_gamma - 1.0)*(g_inputParam[E_SN]/unitENERGY)/vol;
-  }         
+
+  if (r <= rinj/UNIT_LENGTH ) {
+  //  v[PRS] += (g_gamma - 1.0)*(g_inputParam[E_SN]/unitENERGY)/vol;
+   v[PRS] += (g_gamma - 1.0)*(g_inputParam[E_SN]/vol/unitPRS);
+   v[PCR] += fcr * (g_gamma - 1.0)*(g_inputParam[E_SN]/vol/unitPRS); 
+  } 
 }
 /* ********************************************************************* */
 void Analysis (const Data *d, Grid *grid)
@@ -92,8 +92,8 @@ void UserDefBoundary (const Data *d, RBox *box, int side, Grid *grid)
 
   if (side == 0) {    /* -- check solution inside domain -- */
     DOM_LOOP(k,j,i){
-
-      if(d->Vc[PRS][k][j][i] < 1e-10){d->Vc[PRS][k][j][i] = 1e-10;}
+      if (d->Vc[RHO][k][j][i] < 1e-10){d->Vc[RHO][k][j][i] = 1e-10;}
+      if (d->Vc[PRS][k][j][i] < 1e-10){d->Vc[PRS][k][j][i] = 1e-10;}
   #if CR_FLUID != NO
       if(d->Vc[PCR][k][j][i] < 1e-10){d->Vc[PCR][k][j][i] = 1e-10;}
   #endif

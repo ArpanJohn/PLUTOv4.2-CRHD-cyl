@@ -323,7 +323,7 @@ class DefineProblem(object):
             scrh_end = pf.LocateString('User_Constants_End')
             k_end   = scrh_end[0][0]-1
             const_lines = pf.ReadLines(k_beg, k_end)
-            print const_lines
+            print (const_lines)
             for n in range(len(const_lines)):
                 x = const_lines[n].split()
                 try:                
@@ -504,7 +504,7 @@ class DefineProblem(object):
         try:
             scrh[0]
         except IndexError:
-            print "Parameters keyword not found in pluto.ini"
+            print ("Parameters keyword not found in pluto.ini")
             sys.exit()
         else:
             pass

@@ -4,7 +4,8 @@
 #             
 ########################################################################
 
-CC       = mpicc
+# CC       = mpicc
+CC	= mpicc.mpich
 CFLAGS   = -c -O3 
 LDFLAGS  = -lm
 

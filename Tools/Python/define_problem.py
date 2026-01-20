@@ -45,7 +45,7 @@ class DefineProblem(object):
         # Creating a dictionary of flags that are invoked by giving arguments.
         flag_keys = ['WITH-CHOMBO', 'FULL', 'WITH-FD', 'WITH-SB', 'WITH-FARGO']
         #self.flag_dict = {key: False for key in flag_keys} DOESNT WORK WITH PYTHON 2.6
-	self.flag_dict = {'WITH-CHOMBO':False, 'FULL':False, 'WITH-FD':False, 'WITH-SB':False, 'WITH-FARGO':False}
+        self.flag_dict = {'WITH-CHOMBO':False, 'FULL':False, 'WITH-FD':False, 'WITH-SB':False, 'WITH-FARGO':False}
         
         for arg in sys.argv:
             if arg[2:].upper() in flag_keys:
@@ -202,11 +202,11 @@ class DefineProblem(object):
         if (os.path.exists(self.work_dir+'/definitions.h')):
             pf = pfIO.PlutoFiles(self.work_dir+'/definitions.h')
             pf.UpdateListFromFile(Ents, Defs)
-	    for i in range(len(Ents)):
-		if Defs[i] not in Opts[i]:
-		    Defs[i] = Opts[i][0]
-		else:
-		    pass
+            for i in range(len(Ents)):
+                if Defs[i] not in Opts[i]:
+                    Defs[i] = Opts[i][0]
+                else:
+                    pass
 
         # Provides Browsing options using the menu file in case of no automatic update flag.
         if self.auto_update == 0:
@@ -381,7 +381,7 @@ class DefineProblem(object):
         Sets the non-user friendly constants.
         """
         tmplist1 = ['INITIAL_SMOOTHING', 'WARNING_MESSAGES', 'PRINT_TO_FILE',
-		    'INTERNAL_BOUNDARY', 'SHOCK_FLATTENING']
+                    'INTERNAL_BOUNDARY', 'SHOCK_FLATTENING']
         tmplist2 = len(tmplist1)*['NO']
         
  #       if self.flag_dict['WITH-CHOMBO']:
@@ -436,8 +436,8 @@ class DefineProblem(object):
             self.header_files.append('ppm_coeffs.h')
         elif interp_mode in ['FLAT', 'LimO3', 'WENO3']:
             self.additional_files.append(interp_mode.lower()+'_states.o')
-	else:
-	    pass
+        else:
+            pass
         
         if self.flag_dict['WITH-FD']:
             self.additional_files += ['fd_states.o', 'fd_reconstruct.o', 'fd_flux.o']
@@ -539,7 +539,7 @@ class DefineProblem(object):
         try:
             scrh[0]
         except IndexError:
-            print "Parameters keyword not found in pluto.ini"
+            print ("Parameters keyword not found in pluto.ini")
             sys.exit()
         else:
             pass

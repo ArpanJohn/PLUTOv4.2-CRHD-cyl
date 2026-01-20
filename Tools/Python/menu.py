@@ -325,7 +325,7 @@ def Print_no_curses(message, sleep, row):
 
   global xglb
 #  if (row == 1): os.system("clear")
-  print message
+  print (message)
   time.sleep(sleep)
 
 ######################################################
@@ -335,7 +335,7 @@ def Prompt_no_curses (message):
 ######################################################
 
   os.system("clear")
-  print message
+  print (message)
   q = raw_input()
 
 ######################################################
@@ -347,18 +347,18 @@ def Browse_no_curses(entries,  default, options):
   q = "c"
   while (q != ''):
     os.system("clear")
-    print ">> ",gb.title+"\n"
+    print (">> "+gb.title+"\n")
     for x in entries:
       i = entries.index(x)
       if (len(default) > 0): 
-        print str(i).rjust(2),') ',x.ljust(28), default[i]
+        print (str(i).rjust(2)+') '+x.ljust(28)+ default[i])
       else:
-        print str(i).rjust(2),') ',x.ljust(28)
+        print (str(i).rjust(2)+') '+x.ljust(28))
 
-    print " "
+    print (" ")
     q = raw_input(">> choice ? ")
     if (q == ''):
-      print "Enter"
+      print ("Enter")
     else:
       try:
         q = int(q)
@@ -371,7 +371,7 @@ def Browse_no_curses(entries,  default, options):
         i = options[q].index(x)
         opt_list += repr(i)+") "+x+"   "
     
-      print "\n"+entries[q]+": ",opt_list
+      print ("\n"+entries[q]+": "+opt_list)
       c = raw_input(">> choice ["+default[q]+"] ? ")
       try: 
         c = int(c)
@@ -390,15 +390,15 @@ def Insert_no_curses(entries, names):
   q = "c"
   while (q != ''):
     os.system("clear")
-    print ">> ",gb.title+"\n"
+    print (">> "+gb.title+"\n")
     for x in entries:
       i = entries.index(x)
-      print str(i).rjust(2),') ',names[i].ljust(28)
+      print (str(i).rjust(2)+') '+names[i].ljust(28))
 
-    print " "
+    print (" ")
     q = raw_input(">> choice ? ")
     if (q == ''):
-      print "Enter"
+      print ("Enter")
     else:
       try:
         q = int(q)

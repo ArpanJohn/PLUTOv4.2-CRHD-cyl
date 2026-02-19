@@ -83,6 +83,12 @@ void CRD_Flux (double ***Ecr, const State_1D *state,
     state->crd_flux[i][ECR] = Fc;
     dcoeff[i][ECR]         = fabs(kpar);
 
+#elif PHYSICS == MHD  // - Arpan
+    Fc = kpar*gradEcr[i][g_dir];  
+  
+    state->crd_flux[i][ECR] = Fc;
+    dcoeff[i][ECR]         = fabs(kpar);
+
 #endif
   }
 }

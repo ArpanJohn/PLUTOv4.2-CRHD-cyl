@@ -47,6 +47,7 @@ void HLL_Solver (const State_1D *state, int beg, int end,
   static double **fL, **fR, **Uhll;
   static double **VL, **VR, **UL, **UR;
   static double *pL, *pR, *a2L, *a2R;
+  static double *pcrL, *pcrR; // NEW - Arpan
   double **bgf;
     
   if (fL == NULL){
@@ -65,6 +66,9 @@ void HLL_Solver (const State_1D *state, int beg, int end,
      UL = ARRAY_2D(NMAX_POINT, NVAR, double);
      UR = ARRAY_2D(NMAX_POINT, NVAR, double);
     #endif
+
+    pcrR = ARRAY_1D(NMAX_POINT, double); // NEW - Arpan
+    pcrL = ARRAY_1D(NMAX_POINT, double); // NEW - Arpan
   }
 
   #if BACKGROUND_FIELD == YES
@@ -91,8 +95,11 @@ void HLL_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
-  Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
-  Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
+  // Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
+  // Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
+
+  Flux (UL, VL, a2L, bgf, fL, pL, pcrL, beg, end); // NEW - Arpan
+  Flux (UR, VR, a2R, bgf, fR, pR, pcrR, beg, end); // NEW - Arpan
 
 /* ----------------------------------------
      get max and min signal velocities
@@ -100,6 +107,8 @@ void HLL_Solver (const State_1D *state, int beg, int end,
              
   SL = state->SL; SR = state->SR;
   HLL_Speed (VL, VR, a2L, a2R, bgf, SL, SR, beg, end);
+
+  double uhll_MXn, uhll_RHO; //NEW - Arpan
 
 /* ----------------------------------------
            compute HLL flux
@@ -116,6 +125,13 @@ void HLL_Solver (const State_1D *state, int beg, int end,
         state->flux[i][nv] = fL[i][nv];
       }
       state->press[i] = pL[i];
+
+      #if CR_FLUID != NO // NEW - Arpan
+      state->presscr[i] = pcrL[i];
+      state->u_riemann[i][RHO] = state->vL[i][RHO];
+      state->u_riemann[i][VXn] = state->vL[i][VXn];
+      state->u_riemann[i][PCR] = state->vL[i][PCR];
+      #endif
       
     }else if (SR[i] < 0.0){
     
@@ -123,6 +139,13 @@ void HLL_Solver (const State_1D *state, int beg, int end,
         state->flux[i][nv] = fR[i][nv];
       }
       state->press[i] = pR[i];
+
+      #if CR_FLUID != NO // NEW - Arpan
+      state->presscr[i] = pcrR[i];
+      state->u_riemann[i][RHO] = state->vR[i][RHO];
+      state->u_riemann[i][VXn] = state->vR[i][VXn]; 
+      state->u_riemann[i][PCR] = state->vR[i][PCR];
+      #endif
       
     }else{
     
@@ -136,6 +159,20 @@ void HLL_Solver (const State_1D *state, int beg, int end,
         state->flux[i][nv] *= scrh;
       }
       state->press[i] = (SR[i]*pL[i] - SL[i]*pR[i])*scrh;
+
+
+      #if CR_FLUID != NO // NEW - Arpan
+      state->presscr[i] = (SR[i]*pcrL[i] - SL[i]*pcrR[i])*scrh;  //not used               
+     
+      uhll_MXn = scrh*( SR[i]*uR[MXn] - SL[i]*uL[MXn] + (fL[i][MXn]-fR[i][MXn])  \
+                                               +  (pL[i] - pR[i]) ) ;
+                                                              
+      uhll_RHO = scrh*(SR[i]*uR[RHO] - SL[i]*uL[RHO] + (fL[i][RHO]-fR[i][RHO]) );
+          
+      state->u_riemann[i][RHO] = uhll_RHO;
+      state->u_riemann[i][VXn] = uhll_MXn / uhll_RHO;
+      state->u_riemann[i][PCR] = scrh*( SR[i]*uR[ECR] - SL[i]*uL[ECR] + (fL[i][ECR]-fR[i][ECR]) )*(g_gammacr-1.);
+     #endif 
     }
 
   }

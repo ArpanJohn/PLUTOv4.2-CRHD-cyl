@@ -12,3 +12,7 @@ OBJ   +=  bckgrnd_field.o eigenv.o fluxes.o mappers.o  prim_eqn.o \
 OBJ += get_area_flux.o rhs_source.o
 
 
+# NEW - Arpan
+# To exchange energy between thermal and non-thermal (CR) fluid
+
+OBJ += cr_source.o crinj_shock.o

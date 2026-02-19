@@ -41,7 +41,8 @@
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
-
+#include <stdlib.h> // Required for abs() - Arpan
+                    
 #ifndef STS_NU     
  #define STS_NU  0.01  /**< Sets the nu parameter used in STS. */
 #endif
@@ -90,7 +91,6 @@ void STS (const Data *d, Time_Step *Dts, Grid *grid)
     g_intStage = m + 1;
     Boundary(d, ALL_DIR, grid);
     inv_dtp = ParabolicRHS(d, rhs, 1.0, grid); 
-    
   /* --------------------------------------------------------------
       At the first step (m=0) compute (explicit) parabolic time 
       step. Restriction on explicit time step should be
@@ -121,12 +121,16 @@ void STS (const Data *d, Time_Step *Dts, Grid *grid)
       N = STS_FindRoot(1.0, dt_par, g_dt);
       N = floor(N+1.0);
       n = (int)N;
-
       Dts->Nsts = n;
-      if (n > STS_MAX_STEPS){
+      if (n > STS_MAX_STEPS || -n > STS_MAX_STEPS ){ // - Arpan
         print1 ("! STS: the number of substeps (%d) is > %d\n",n, STS_MAX_STEPS); 
         QUIT_PLUTO(1);
       }
+
+      // if (n > STS_MAX_STEPS){
+      //   print1 ("! STS: the number of substeps (%d) is > %d\n",n, STS_MAX_STEPS); 
+      //   QUIT_PLUTO(1);
+      // }
 
     /* ------------------------------------------
         Adjust explicit timestep to make Nsts an 
@@ -142,7 +146,11 @@ void STS (const Data *d, Time_Step *Dts, Grid *grid)
 
     }   /* end if m == 0 */
 
-    tau = ts[n-m-1];
+
+
+    tau = ts[n-m-1];     
+
+
 
   /* -----------------------------------------------
       Update cell-centered conservative variables

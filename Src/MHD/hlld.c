@@ -68,6 +68,7 @@ void HLLD_Solver (const State_1D *state, int beg, int end,
   static double **fL, **fR;
   static double **VL, **VR, **UL, **UR;
   static double *a2L, *a2R;
+  static double *pcrL, *pcrR; // NEW - Arpan
   #if BACKGROUND_FIELD == YES
    double B0n, B0t, B0b;
   #endif
@@ -88,6 +89,9 @@ void HLLD_Solver (const State_1D *state, int beg, int end,
      UL = ARRAY_2D(NMAX_POINT, NVAR, double);
      UR = ARRAY_2D(NMAX_POINT, NVAR, double);
     #endif
+
+    pcrR = ARRAY_1D(NMAX_POINT, double); // NEW - Arpan
+    pcrL = ARRAY_1D(NMAX_POINT, double); // NEW - Arpan
   }
 
   #if BACKGROUND_FIELD == YES
@@ -139,8 +143,11 @@ state->uR = UR;
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
-  Flux (UL, VL, a2L, bgf, fL, ptL, beg, end);
-  Flux (UR, VR, a2R, bgf, fR, ptR, beg, end);
+  // Flux (UL, VL, a2L, bgf, fL, ptL, beg, end);
+  // Flux (UR, VR, a2R, bgf, fR, ptR, beg, end);
+
+  Flux (UL, VL, a2L, bgf, fL, ptL, pcrL, beg, end); // NEW - Arpan
+  Flux (UR, VR, a2R, bgf, fR, ptR, pcrR, beg, end); // NEW - Arpan
 
 /* ----------------------------------------
      get max and min signal velocities

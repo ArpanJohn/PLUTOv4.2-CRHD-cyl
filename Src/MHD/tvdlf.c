@@ -57,6 +57,8 @@ void LF_Solver (const State_1D *state, int beg, int end,
   static double **VL, **VR, **UL, **UR;
   double **bgf;
 
+  static double *pcrL, *pcrR; // NEW - Arpan
+
   if (fR == NULL){
     fR  = ARRAY_2D(NMAX_POINT, NFLX, double);
     fL  = ARRAY_2D(NMAX_POINT, NFLX, double);
@@ -74,6 +76,9 @@ void LF_Solver (const State_1D *state, int beg, int end,
      UL = ARRAY_2D(NMAX_POINT, NVAR, double);
      UR = ARRAY_2D(NMAX_POINT, NVAR, double);
     #endif
+
+    pcrR = ARRAY_1D(NMAX_POINT, double); // NEW - Arpan
+    pcrL = ARRAY_1D(NMAX_POINT, double); // NEW - Arpan
   }
 
   #if BACKGROUND_FIELD == YES
@@ -96,8 +101,11 @@ void LF_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
-  Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
-  Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
+  // Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
+  // Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
+
+  Flux (UL, VL, a2L, bgf, fL, pL, pcrL, beg, end);  // NEW - Arpan
+  Flux (UR, VR, a2R, bgf, fR, pR, pcrR, beg, end);  // NEW - Arpan
 
 /* ------------------------------------------------------
             Compute max eigenvalue and fluxes
@@ -130,7 +138,12 @@ void LF_Solver (const State_1D *state, int beg, int end,
       state->flux[i][nv] = 0.5*(fL[i][nv] + fR[i][nv] - cRL*(uR[nv] - uL[nv]));
     }
     state->press[i] = 0.5*(pL[i] + pR[i]);
+
+    #if CR_FLUID != NO // NEW
+    state->presscr[i] = 0.5*(pcrL[i] + pcrR[i]);
+    #endif
   }
+
 
 /* --------------------------------------------------------
               initialize source term

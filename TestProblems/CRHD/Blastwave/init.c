@@ -13,12 +13,42 @@
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
+int flag = 0;
 /* ********************************************************************* */
 void Init (double *v, double x1, double x2, double x3)
 /*! 
  *
  *********************************************************************** */
 {
+
+  if (flag == 0){
+    printf("--- Variable Check (NVAR = %d) ---\n", NVAR);
+    
+    // Print standard primitive/conservative variables
+    printf("RHO: %d\n", RHO);
+    printf("VX1: %d, VX2: %d, VX3: %d\n", VX1, VX2, VX3);
+    #if PHYSICS == MHD
+      printf("BX1: %d, BX2: %d, BX3: %d\n", BX1, BX2, BX3);
+    #endif
+    printf("PRS: %d\n", PRS);
+    printf("PCR: %d\n", PCR);
+
+    if (ECR >= NVAR){
+      printf("ERROR: ECR index %d >= NVAR %d\n", ECR, NVAR);
+      QUIT_PLUTO(1);
+    }
+    else {
+      printf("ECR index %d safe,  NVAR %d\n", ECR, NVAR);
+    }
+
+
+    // // Loop to print ALL variables by index to ensure none are missed
+    // for (int i = 0; i < NVAR; i++) {
+    //     printf("Variable Index [%d] Value: %e\n", i, i);
+    // }
+    printf("----------------------------------\n");
+    flag = 1;
+  }
   double dr, vol, r;
   double rinj = g_inputParam[Rinj]; // im cgs units;
   vol = 4.0/3.0*CONST_PI*rinj*rinj*rinj;
@@ -40,10 +70,40 @@ void Init (double *v, double x1, double x2, double x3)
   v[PCR] = fcr*v[PRS]; // or any small value (e.g, 1.e-30);
   #endif
 
+
+  #if PHYSICS == MHD 
+    double beta_bck = 2.22;
+    double UNIT_MAG = UNIT_VELOCITY * sqrt(4.0 * CONST_PI * UNIT_DENSITY);
+    /* setting up a purely toroidal field with a constant plasma beta equal to plasma beta of injected field */
+    double  B_phi = 0;
+    double B_mag = sqrt( 8 / beta_bck * CONST_PI * (v[PRS]*unitPRS)) ; /* calculing the amount  of injected toroidal field based on beta */
+    B_phi = B_mag / UNIT_MAG;
+
+    // if (flag < 10) {
+    //   printf("\n\n UNIT_MAG = %.4e \n B_phi
+    
+#if GEOMETRY == CYLINDRICAL
+    v[iBR] = 0;
+    v[iBZ] = 0;
+    v[iBPHI] = 0;
+
+    if (!isnan(B_phi)) v[iBPHI]= B_phi;
+# else
+    v[BX1] = 0;
+    v[BX2] = 0;
+    v[BX3] = 0;
+
+    if (!isnan(B_phi)) v[BX3]= B_phi;
+#endif
+  #endif
+
+
   if (r <= rinj/UNIT_LENGTH ) {
   //  v[PRS] += (g_gamma - 1.0)*(g_inputParam[E_SN]/unitENERGY)/vol;
    v[PRS] += (g_gamma - 1.0)*(g_inputParam[E_SN]/vol/unitPRS);
+  #if CR_FLUID != NO
    v[PCR] += fcr * (g_gamma - 1.0)*(g_inputParam[E_SN]/vol/unitPRS); 
+  #endif
   } 
 }
 /* ********************************************************************* */

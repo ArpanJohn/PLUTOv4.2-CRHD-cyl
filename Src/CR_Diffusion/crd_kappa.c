@@ -27,5 +27,10 @@ void CRD_kappa(double *v, double x1, double x2, double x3,
  *    
  *********************************************************************** */
 {
+
+  /* NEW - Arpan 
+   * temperary values */
+  *kpar = 1.e28 / (UNIT_LENGTH * UNIT_VELOCITY);
+  *knor = 1.e26 / (UNIT_LENGTH * UNIT_VELOCITY);
  
 }

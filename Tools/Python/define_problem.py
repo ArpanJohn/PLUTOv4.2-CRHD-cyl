@@ -262,14 +262,19 @@ class DefineProblem(object):
         Hydro Module.Also updates them accordingly if required by flags.
         """
         self.entries_MHD = ['EOS', 'ENTROPY_SWITCH', 'DIVB_CONTROL', 'BACKGROUND_FIELD',
-                            'RESISTIVITY', 'THERMAL_CONDUCTION', 'VISCOSITY', 'ROTATING_FRAME']
-        self.default_MHD = ['IDEAL','NO','EIGHT_WAVES','NO','NO','NO','NO','NO']
+                            'RESISTIVITY', 'THERMAL_CONDUCTION', 'VISCOSITY', 'ROTATING_FRAME', 
+                            'CR_FLUID', 'CR_DIFFUSION']                                 # NEW - Arpan
+        self.default_MHD = ['IDEAL','NO','EIGHT_WAVES','NO','NO','NO','NO','NO',
+                            'NO', 'NO']                                                 # NEW - Arpan
         self.options_MHD = [['IDEAL','PVTE_LAW','ISOTHERMAL'],
 #                            ['NO','YES'],
                             ['NO','SELECTIVE','ALWAYS','CHOMBO_REGRID'],
                             ['NO','EIGHT_WAVES','DIV_CLEANING','CONSTRAINED_TRANSPORT'],
                             ['NO','YES'],['NO','EXPLICIT', 'SUPER_TIME_STEPPING'],
-                            ['NO','EXPLICIT', 'SUPER_TIME_STEPPING'],['NO','EXPLICIT', 'SUPER_TIME_STEPPING'],['NO','YES']]
+                            ['NO','EXPLICIT', 'SUPER_TIME_STEPPING'],['NO','EXPLICIT', 'SUPER_TIME_STEPPING'],['NO','YES'],
+                            ['NO', 'NC_PdV_TOTENG', 'NC_DCR_TOTENG'],       # NEW - Arpan
+                            ['NO','SUPER_TIME_STEPPING'],                   # NEW - Arpan
+                            ]
         
         if self.flag_dict['WITH-CHOMBO']:
             indx_ = self.entries_MHD.index('DIVB_CONTROL')

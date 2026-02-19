@@ -30,15 +30,21 @@
   #define ENG  (2*COMPONENTS + 1)
   #define PRS  ENG
 #endif
+
+#if CR_FLUID != NO      // NEW - Arpan
+  #define ECR (ENG + 1) // CR energy density
+  #define PCR ECR       // CR pressure
+#endif
+
 #if DIVB_CONTROL == DIV_CLEANING
-  #define PSI_GLM  (2*COMPONENTS + 1 + HAVE_ENERGY)
+  #define PSI_GLM  (2*COMPONENTS + 1 + HAVE_ENERGY + (CR_FLUID != NO ? 1:0))  // NEW - Arpan
 #endif
 
 #define VX1   MX1
 #define VX2   MX2
 #define VX3   MX3
 
-#define NFLX (1 + 2*COMPONENTS + HAVE_ENERGY + (DIVB_CONTROL == DIV_CLEANING))
+#define NFLX (1 + 2*COMPONENTS + HAVE_ENERGY + (DIVB_CONTROL == DIV_CLEANING) + (CR_FLUID != NO ? 1:0))  // NEW - Arpan
 
 /* ****************************************************************
    **************************************************************** */
@@ -171,7 +177,7 @@ void ConsEigenvectors (double *, double *, double,
                        double **, double **, double *);
 
 void Flux      (double **, double **, double *, double **, double **,
-                double *, int, int);
+                double *, double *, int, int);
 void HLL_Speed (double **, double **, double *, double *, double **, 
                 double *, double *, int, int);
 void MaxSignalSpeed (double **, double *, double *, double *, double **, int, int);
@@ -208,3 +214,7 @@ Riemann_Solver HLL_Linde_Solver;
  #include "MHD/ShearingBox/shearingbox.h"
 #endif
 /* \endcond */
+
+// NEW - Arpan
+double CR_Source(int swp, const State_1D *state, double **vp, double **vm, double dtdx, double dtdV, double *A);
+void DetectShock_CR (const Data *d, Grid *grid);

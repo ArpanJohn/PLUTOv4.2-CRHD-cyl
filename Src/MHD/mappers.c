@@ -21,6 +21,13 @@
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
+// In CR-fluid, to switch different methods at shock
+// Parameter can be set to yes in definitions.h file 
+#ifndef NC_HYBRID
+ #define NC_HYBRID 0  // NEW - Arpan
+#endif
+
+
 /* ********************************************************************* */
 void PrimToCons (double **uprim, double **ucons, int ibeg, int iend)
 /*!
@@ -74,6 +81,22 @@ void PrimToCons (double **uprim, double **ucons, int ibeg, int iend)
       print("! PrimToCons: KE:%12.6e uRHO : %12.6e, m2 : %12.6e \n",rhoe,v[RHO],u[ENG]);
       QUIT_PLUTO(1);
     }
+#endif
+
+#if CR_FLUID != NO // NEW Arpan
+
+     if(CR_FLUID == NC_VdP_TOTENG || \
+        CR_FLUID == NC_PdV_TOTENG || \
+        CR_FLUID == NC_DCR_TOTENG || \
+        CR_FLUID == NC_OS_PdV_TOTENG){
+       u[ENG] += v[PCR]/(g_gammacr-1.);
+     }
+     
+     if(CR_FLUID != NC_DCR_TOTENG){
+       u[ECR]  = v[PCR]/(g_gammacr-1.);}
+     else{
+       u[ECR]  = pow(v[PCR], 1./g_gammacr);
+     } 
 #endif
     
 #ifdef GLM_MHD
@@ -130,6 +153,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
     if (u[RHO] < 0.0) {
       print("! ConsToPrim: negative density (%8.2e), ", u[RHO]);
       Where (i, NULL);
+
       u[RHO]   = g_smallDensity;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
       ifail    = 1;
@@ -149,6 +173,34 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
 
     kinb2 = 0.5*(m2*tau + b2);    
 
+ /* -- Cosmic ray -- */
+  #if CR_FLUID != NO // NEW - Arpan
+    if(NC_HYBRID != 1.){
+    
+      if (CR_FLUID != NC_DCR_TOTENG){ 
+        v[PCR] = u[ECR]*(g_gammacr-1.);  
+      } else if (CR_FLUID == NC_DCR_TOTENG) { 
+        v[PCR] = pow(u[ECR], g_gammacr); 
+      } 
+
+    } else if (NC_HYBRID == 1.){
+
+      if (CR_FLUID != NC_DCR_TOTENG){
+      double pcr;
+      if(flag[i] != FLAG_HLL) {
+      //  1: No Shock: assume that u[ECR] correctly describes the CR evolution  
+        pcr    = u[ECR]*(g_gammacr-1.);
+        v[PCR] = pcr;
+        u[TRC] = pow(pcr,1.0/g_gammacr);  // Must redefine conserved u[TRC]
+      } else {
+      //  2: Shock: assume that u[TRC] best describes CR evolution  
+        v[PCR] = pow(u[TRC], g_gammacr);
+        u[ECR] = v[PCR]/(g_gammacr - 1.0);  
+      }
+    }
+  }
+  #endif
+
   /* -- Check energy positivity -- */
 
 #if HAVE_ENERGY
@@ -158,6 +210,14 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
         Where (i, NULL);
       )
       u[ENG]    = g_smallPressure/gmm1 + kinb2;
+      #if CR_FLUID != NO // NEW - Arpan
+        if( CR_FLUID == NC_VdP_TOTENG || \
+            CR_FLUID == NC_PdV_TOTENG || \
+            CR_FLUID == NC_OS_PdV_TOTENG || \
+            CR_FLUID == NC_DCR_TOTENG ){ 
+          u[ENG] += v[PCR]/(g_gammacr-1.); 
+        }
+      #endif
       flag[i] |= FLAG_CONS2PRIM_FAIL;
       ifail    = 1;
     }
@@ -187,6 +247,16 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
 
     if (use_energy){
       v[PRS] = gmm1*(u[ENG] - kinb2);
+      #if CR_FLUID != NO // NEW - Arpan
+      if( CR_FLUID == NC_VdP_TOTENG || \
+            CR_FLUID == NC_PdV_TOTENG || \
+            CR_FLUID == NC_OS_PdV_TOTENG || \
+            CR_FLUID == NC_DCR_TOTENG ){ 
+       //if( v[PRS] > gmm1*v[PCR]/(g_gammacr-1.) ){
+         v[PRS] -= gmm1*v[PCR]/(g_gammacr-1.);
+       //}
+      }
+      #endif
       if (v[PRS] < 0.0){
         WARNING(
           print("! ConsToPrim: negative p(E) (%8.2e), ", v[PRS]);
@@ -194,6 +264,14 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
         )
         v[PRS]    = g_smallPressure;
         u[ENG]    = v[PRS]/gmm1 + kinb2; /* -- recompute energy -- */
+        #if CR_FLUID != NO // NEW - Arpan
+        if( CR_FLUID == NC_VdP_TOTENG || \
+            CR_FLUID == NC_PdV_TOTENG || \
+            CR_FLUID == NC_OS_PdV_TOTENG || \
+            CR_FLUID == NC_DCR_TOTENG ){
+           u[ENG] += v[PCR]/(g_gammacr-1.);
+        }
+        #endif
         flag[i] |= FLAG_CONS2PRIM_FAIL;
         ifail    = 1;
       }

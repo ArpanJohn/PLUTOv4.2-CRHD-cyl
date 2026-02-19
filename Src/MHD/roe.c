@@ -92,6 +92,8 @@ void Roe_Solver (const State_1D *state, int beg, int end,
   double Us[NFLX];
   delta    = 1.e-6;
 
+  static double *pcrL, *pcrR; // NEW - Arpan
+
 /* -----------------------------------------------------------
    1. Allocate static memory areas
    ----------------------------------------------------------- */
@@ -113,6 +115,9 @@ void Roe_Solver (const State_1D *state, int beg, int end,
      UL = ARRAY_2D(NMAX_POINT, NVAR, double);
      UR = ARRAY_2D(NMAX_POINT, NVAR, double);
     #endif
+
+    pcrR = ARRAY_1D(NMAX_POINT, double); //NEW - Arpan
+    pcrL = ARRAY_1D(NMAX_POINT, double); //NEW - Arpan
   }
 
 /* -----------------------------------------------------------
@@ -147,8 +152,11 @@ void Roe_Solver (const State_1D *state, int beg, int end,
   SoundSpeed2 (VL, a2L, NULL, beg, end, FACE_CENTER, grid);
   SoundSpeed2 (VR, a2R, NULL, beg, end, FACE_CENTER, grid);
 
-  Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
-  Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
+  // Flux (UL, VL, a2L, bgf, fL, pL, beg, end);
+  // Flux (UR, VR, a2R, bgf, fR, pR, beg, end);
+
+  Flux (UL, VL, a2L, bgf, fL, pL, pcrL, beg, end);  // NEW - Arpan
+  Flux (UR, VR, a2R, bgf, fR, pR, pcrR, beg, end);  // NEW - Arpan
 
   SL = state->SL; SR = state->SR;
 

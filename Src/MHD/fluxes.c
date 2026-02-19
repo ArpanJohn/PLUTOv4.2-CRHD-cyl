@@ -21,7 +21,7 @@
 
 /* ********************************************************************* */
 void Flux (double **ucons, double **wprim, double *a2, double **bck, 
-           double **fx, double *p, int beg, int end)
+           double **fx, double *p, double *pcr, int beg, int end)
 
 /*!
  * \param [in]     ucons   1D array of conserved quantities
@@ -30,6 +30,7 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
  * \param [in]      bck    1D array of background field values
  * \param [out]     fx     1D array of fluxes (total pressure excluded)
  * \param [out]      p     1D array of pressure values
+ * \param [out]     pcr    1D array of cosmic ray pressure // NEW
  * \param [in]      beg    initial index of computation 
  * \param [in]      end    final   index of computation
  *
@@ -58,6 +59,7 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
      print ("! Flux(): not defined for this EoS\n");
      QUIT_PLUTO(1);
     #endif
+
 
     vB    = EXPAND(w[VX1]*w[BX1] , + w[VX2]*w[BX2], + w[VX3]*w[BX3]);
 
@@ -99,5 +101,27 @@ void Flux (double **ucons, double **wprim, double *a2, double **bck,
      fx[i][BXn]      = w[PSI_GLM];
      fx[i][PSI_GLM] = glm_ch*glm_ch*w[BXn];
     #endif
+
+#if CR_FLUID != NO // NEW - Arpan
+     ptot += w[PCR]; // term includes CR pressure
+     pcr[i]      = w[PCR];
+
+    // Adds CR work done term in the energy flux i.e.,\
+       fx_{eng} = ( e_{internal} + (p_{th} + p_{cr}) ) v 
+
+     fx[i][ENG] += w[PCR]*w[VXn]; 
+
+     if (CR_FLUID == NC_VdP_TOTENG) { 
+     //option 1: (VdP method) fx_{ecr}=(e_{cr} + p_{cr}) v; 
+
+       fx[i][ECR] = (u[ECR] + w[PCR])*w[VXn];
+
+     } else {
+      //option != 1 (other methods) fx_{ecr} =  e_{cr} v;
+
+       fx[i][ECR] = u[ECR]*w[VXn]; 
+
+     } 
+#endif
   }
 }
